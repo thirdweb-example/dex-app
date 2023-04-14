@@ -1,4 +1,4 @@
-import { HStack, Image, Input } from "@chakra-ui/react";
+import { Box, Button, HStack, Image, Input } from "@chakra-ui/react";
 import { resolveIpfsUri } from "@thirdweb-dev/react";
 import React from "react";
 
@@ -7,6 +7,7 @@ type Props = {
   tokenImage?: string;
   current: string;
   setValue: (value: string) => void;
+  max?: string;
   value: string;
 };
 
@@ -16,6 +17,7 @@ export default function SwapInput({
   setValue,
   value,
   current,
+  max,
 }: Props) {
   return (
     <HStack w="full" bgColor="gray.100" rounded="2xl" px="5">
@@ -31,7 +33,11 @@ export default function SwapInput({
         isDisabled={current !== type}
         border="none"
         fontFamily="monospace"
+        _focus={{ boxShadow: "none" }}
       />
+      {current === type && (
+        <Button onClick={() => setValue(max || "0")}>Max</Button>
+      )}
     </HStack>
   );
 }

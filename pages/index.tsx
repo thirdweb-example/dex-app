@@ -13,15 +13,19 @@ import {
 } from "@chakra-ui/react";
 import { ACTIVE_CHAIN, DEX_ADDRESS, TOKEN_ADDRESS } from "@/const/details";
 import {
+  ConnectWallet,
   resolveIpfsUri,
   toEther,
   toWei,
   useAddress,
+  useBalance,
   useContract,
   useContractMetadata,
   useContractRead,
   useContractWrite,
+  useNetworkMismatch,
   useSDK,
+  useSwitchChain,
   useTokenBalance,
 } from "@thirdweb-dev/react";
 import { useEffect, useState } from "react";
@@ -37,10 +41,14 @@ export default function Home() {
   const { data: symbol } = useContractRead(tokenContract, "symbol");
   const { data: tokenMetadata } = useContractMetadata(tokenContract);
   const { data: tokenBalance } = useTokenBalance(tokenContract, address);
+  const { data: nativeBalance } = useBalance();
   const { data: contractTokenBalance } = useTokenBalance(
     tokenContract,
     DEX_ADDRESS
   );
+
+  const isMismatched = useNetworkMismatch();
+  const switchChain = useSwitchChain();
 
   const sdk = useSDK();
   const [contractBalance, setContractBalance] = useState<string>("0");
@@ -90,6 +98,11 @@ export default function Home() {
 
   const executeSwap = async () => {
     setLoading(true);
+    if (isMismatched) {
+      switchChain(ACTIVE_CHAIN.chainId);
+      setLoading(false);
+      return;
+    }
     try {
       if (currentFrom === "native") {
         await swapNativeToToken({ overrides: { value: toWei(nativeValue) } });
@@ -157,7 +170,7 @@ export default function Home() {
         mt="40"
         p="5"
         mx="auto"
-        maxW="xl"
+        maxW={{ base: "sm", md: "xl" }}
         w="full"
         rounded="2xl"
         borderWidth="1px"
@@ -170,6 +183,7 @@ export default function Home() {
           <SwapInput
             current={currentFrom}
             type="native"
+            max={nativeBalance?.displayValue}
             value={nativeValue}
             setValue={setNativeValue}
             tokenImage={resolveIpfsUri(ACTIVE_CHAIN.icon!.url)}
@@ -190,22 +204,30 @@ export default function Home() {
           <SwapInput
             current={currentFrom}
             type="token"
+            max={tokenBalance?.displayValue}
             value={tokenValue}
             setValue={setTokenValue}
             tokenImage={tokenMetadata?.image}
           />
         </Flex>
 
-        <Button
-          onClick={executeSwap}
-          py="7"
-          fontSize="2xl"
-          colorScheme="twitter"
-          rounded="xl"
-          isDisabled={loading}
-        >
-          {loading ? <Spinner /> : "Execute Swap"}
-        </Button>
+        {address ? (
+          <Button
+            onClick={executeSwap}
+            py="7"
+            fontSize="2xl"
+            colorScheme="twitter"
+            rounded="xl"
+            isDisabled={loading}
+          >
+            {loading ? <Spinner /> : "Execute Swap"}
+          </Button>
+        ) : (
+          <ConnectWallet
+            style={{ padding: "20px 0px", fontSize: "18px" }}
+            theme="light"
+          />
+        )}
       </Flex>
     </>
   );

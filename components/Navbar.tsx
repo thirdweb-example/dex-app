@@ -12,6 +12,7 @@ export default function Navbar() {
         justifyContent="space-between"
         alignItems="center"
         py="5"
+        px={{ base: "5", xl: "0" }}
       >
         <Text fontWeight="bold" fontSize="2xl">
           Token DEX
