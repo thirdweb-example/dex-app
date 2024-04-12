@@ -1,3 +1,10 @@
+> [!Important]  
+> This repository is referencing the `mumbai` chain.
+> 
+> `Mumbai` [is deprecated since 08/04/2024](https://blog.thirdweb.com/deprecation-of-mumbai-testnet/), meaning the code in this repository will no longer work out of the box.
+>
+> You can still use this repository, however you will have to switch any references to `mumbai` to another chain.
+
 # DEX app
 
 Create your own DEX for your ERC-20 token. Find the related contracts in the [dex-contracts repository](https://github.com/thirdweb-example/dex-contracts).
